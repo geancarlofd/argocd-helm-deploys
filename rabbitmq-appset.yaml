@@ -1,0 +1,61 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: rabbitmq-appset
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - name: production-rabbitmq
+            namespace: rabbitmq
+            server: https://cluster-production:1234
+          - name: staging-rabbitmq
+            namespace: rabbitmq
+            server: https://cluster-staging:1234
+          - name: development-rabbitmq
+            namespace: rabbitmq
+            server: https://cluster-development:1234
+  template:
+    metadata:
+      name: "{{name}}"
+    spec:
+      project: tools
+      destination:
+        namespace: "{{namespace}}"
+        server: "{{server}}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+      source:
+        chart: rabbitmq
+        repoURL: https://charts.bitnami.com/bitnami
+        targetRevision: 14.7.0
+        helm:
+          parameters:
+            #Auth
+            - name: auth.username
+              value: "user"
+            - name: auth.password
+              value: "password"
+            #Metrics
+            - name: metrics.enable
+              value: "true"
+            - name: metrics.plugins
+              value: "rabbitmq_prometheus"
+            - name: metrics.serviceMonitor.enabled
+              value: "true"
+            - name: metrics.serviceMonitor.interval
+              value: "30s"
+            - name: metrics.serviceMonitor.additionalLabels.monitoring-platform
+              value: "core-prometheus"
+            #Service
+            - name: service.ports.metrics
+              value: "9419"
+            - name: service.extraPorts[0].name
+              value: "metrics"
+            - name: service.extraPorts[0].port
+              value: "9419"
+            - name: service.extraPorts[0].targetPort
+              value: "9419"
