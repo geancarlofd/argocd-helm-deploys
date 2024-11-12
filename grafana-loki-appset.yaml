@@ -1,0 +1,108 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: grafana-loki-appset
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - name: production-loki
+            namespace: observability
+            server: https://cluster-production:1234
+            bucketName: grafana-loki-production
+            s3AccessKeyId: access_key_id
+            s3SecretAccessKey: secret_access_key
+
+          - name: staging-loki
+            namespace: observability
+            server: https://cluster-staging:1234
+            bucketName: grafana-loki-staging
+            s3AccessKeyId: access_key_id
+            s3SecretAccessKey: secret_access_key
+
+          - name: development-loki
+            namespace: observability
+            server: https://cluster-development:1234
+            bucketName: grafana-loki-development
+            s3AccessKeyId: access_key_id
+            s3SecretAccessKey: secret_access_key
+  template:
+    metadata:
+      name: "{{name}}"
+    spec:
+      project: tools
+      destination:
+        namespace: "{{namespace}}"
+        server: "{{server}}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+      source:
+        chart: loki
+        repoURL: https://grafana.github.io/helm-charts
+        targetRevision: 6.12.0
+        helm:
+          parameters:
+            #Auth
+            - name: loki.auth_enabled
+              value: "false"
+
+            # Common Config
+            - name: loki.commonConfig.replication_factor
+              value: "1"
+            - name: deploymentMode
+              value: "SingleBinary"
+            - name: loki.limits_config.retention_period
+              value: "744h"
+            # Schema Config
+            - name: loki.schemaConfig.configs[0].from
+              value: "2024-01-01"
+            - name: loki.schemaConfig.configs[0].store
+              value: "tsdb"
+            - name: loki.schemaConfig.configs[0].index.prefix
+              value: "loki_index_"
+            - name: loki.schemaConfig.configs[0].index.period
+              value: "24h"
+            - name: loki.schemaConfig.configs[0].object_store
+              value: "s3"
+            - name: loki.schemaConfig.configs[0].schema
+              value: "v13"
+
+            #- name: loki.storage.type
+            #  value: "filesystem"
+
+            # Storage - Buckets
+            - name: loki.storage.type
+              value: "s3"
+            - name: loki.storage.bucketNames.chunks
+              value: "{{bucketName}}"
+            - name: loki.storage.bucketNames.ruler
+              value: "{{bucketName}}"
+            - name: loki.storage.bucketNames.admin
+              value: "{{bucketName}}"
+
+            # Oracle Buckets Configuration
+            - name: loki.storage.s3.endpoint
+              value: "https://<namespace>.compat.objectstorage.<region>.oraclecloud.com"
+            - name: loki.storage.s3.region
+              value: "region"
+            - name: loki.storage.s3.accessKeyId
+              value: "{{s3AccessKeyId}}"
+            - name: loki.storage.s3.secretAccessKey
+              value: "{{s3SecretAccessKey}}"
+            - name: loki.storage.s3.s3ForcePathStyle
+              value: "true"
+            - name: loki.storage.s3.insecure
+              value: "true"
+
+            # Single Binary
+            - name: loki.singleBinary.replicas
+              value: "1"
+            - name: backend.replicas
+              value: "0"
+            - name: read.replicas
+              value: "0"
+            - name: write.replicas
+              value: "0"
