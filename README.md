@@ -10,7 +10,7 @@ The repository contains YAML files defining ApplicationSets. These files are use
 
 - **`redis-appset.yaml`**: Defines an ArgoCD ApplicationSet for deploying the Redis Helm chart across production, staging, and development environments.
 - **`rabbitmq-appset.yaml`**: Defines an ArgoCD ApplicationSet for deploying the RabbitMQ Helm chart with metrics enabled and a Prometheus service monitor configuration.
-- **`grafana-loki-appset.yaml`**: Defines an ArgoCD ApplicationSet for deploying Grafana Loki to manage logs across environments, with configurations for Oracle Buckets.
+- **`grafana-loki-appset.yaml`**: Defines an ArgoCD ApplicationSet for deploying Grafana Loki to manage logs across environments, with configurations for Oracle Buckets Storage.
 
 ## ApplicationSet Details
 
@@ -81,12 +81,12 @@ This ApplicationSet deploys Grafana Loki using the [Grafana Loki Helm chart](htt
 
 - **Chart Source**: [Grafana Loki](https://grafana.github.io/helm-charts)
   - Chart Version: `6.12.0`
-- **Storage**: S3 buckets configured for chunks, ruler, and admin storage
-  - Access Key: `{{s3AccessKeyId}}`
-  - Secret Key: `{{s3SecretAccessKey}}`
+- **Storage**: S3 buckets(similar to Oracle Buckets) configured for chunks, ruler, and admin storage
+  - Access Key: `{{s3AccessKeyId}}` (Oracle Cloud user id)
+  - Secret Key: `{{s3SecretAccessKey}}` (Oracle Cloud user access key)
   - S3 Endpoint: Configured for Oracle Cloud Object Storage
 - **Sync Policy**: Automated with pruning and self-healing enabled
-- **Deployment Mode**: Single Binary
+- **Deployment Mode**: Single 
 
 ## Prerequisites
 
