@@ -1,4 +1,4 @@
-# ArgoCD ApplicationSets Repository
+# ArgoCD HELM ApplicationSets Repository
 
 This repository serves as the central location for managing ArgoCD ApplicationSets for various tools deployed with Helm. Each ApplicationSet defines configurations for deploying and managing applications across multiple clusters and environments (e.g., production, staging, and development).
 
