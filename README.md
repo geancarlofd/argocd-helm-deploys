@@ -10,7 +10,7 @@ The repository contains YAML files defining ApplicationSets. These files are use
 
 - **`redis-appset.yaml`**: Defines an ArgoCD ApplicationSet for deploying the Redis Helm chart across production, staging, and development environments.
 - **`rabbitmq-appset.yaml`**: Defines an ArgoCD ApplicationSet for deploying the RabbitMQ Helm chart with metrics enabled and a Prometheus service monitor configuration.
-- **`grafana-loki-appset.yaml`**: Defines an ArgoCD ApplicationSet for deploying Grafana Loki to manage logs across environments, with configurations for S3 bucket storage.
+- **`grafana-loki-appset.yaml`**: Defines an ArgoCD ApplicationSet for deploying Grafana Loki to manage logs across environments, with configurations for Oracle Buckets.
 
 ## ApplicationSet Details
 
